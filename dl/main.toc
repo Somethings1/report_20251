@@ -1,0 +1,79 @@
+\babel@toc {vietnamese}{}\relax 
+\contentsline {chapter}{\numberline {1}Giới thiệu bài toán}{6}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Bối cảnh và động lực}{6}{section.1.1}%
+\contentsline {subsection}{\numberline {1.1.1}Sự bùng nổ của lừa đảo trực tuyến tại Việt Nam}{6}{subsection.1.1.1}%
+\contentsline {subsection}{\numberline {1.1.2}Hạn chế của các phương pháp hiện hành và Bài toán đánh đổi hiệu năng}{6}{subsection.1.1.2}%
+\contentsline {section}{\numberline {1.2}Vấn đề cần giải quyết}{7}{section.1.2}%
+\contentsline {subsection}{\numberline {1.2.1}Định nghĩa bài toán}{7}{subsection.1.2.1}%
+\contentsline {subsection}{\numberline {1.2.2}Các thách thức chính}{7}{subsection.1.2.2}%
+\contentsline {section}{\numberline {1.3}Tầm quan trọng và giá trị thực tế}{8}{section.1.3}%
+\contentsline {section}{\numberline {1.4}Phạm vi và giới hạn}{9}{section.1.4}%
+\contentsline {section}{\numberline {1.5}Cơ sở công nghệ và Lựa chọn hướng tiếp cận}{9}{section.1.5}%
+\contentsline {subsection}{\numberline {1.5.1}Sự phổ biến của công nghệ nhận dạng giọng nói (ASR)}{9}{subsection.1.5.1}%
+\contentsline {subsection}{\numberline {1.5.2}Ưu thế của mô hình ngôn ngữ (Hierarchical BERT) so với mô hình âm thanh (CNN-based)}{10}{subsection.1.5.2}%
+\contentsline {chapter}{\numberline {2}Dữ liệu và Quy trình Xử lý}{11}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Nguồn dữ liệu và Định nghĩa nhãn}{11}{section.2.1}%
+\contentsline {subsection}{\numberline {2.1.1}Cấu trúc nhãn}{11}{subsection.2.1.1}%
+\contentsline {subsection}{\numberline {2.1.2}Thành phần dữ liệu}{11}{subsection.2.1.2}%
+\contentsline {section}{\numberline {2.2}Phân tích đặc điểm dữ liệu (EDA)}{12}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Phân chia tập dữ liệu}{12}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Chiến lược Tăng cường dữ liệu}{13}{section.2.4}%
+\contentsline {subsection}{\numberline {2.4.1}Mô phỏng lỗi nhận dạng}{13}{subsection.2.4.1}%
+\contentsline {subsection}{\numberline {2.4.2}Dịch ngược}{13}{subsection.2.4.2}%
+\contentsline {subsection}{\numberline {2.4.3}Cắt ngẫu nhiên}{13}{subsection.2.4.3}%
+\contentsline {section}{\numberline {2.5}Chuẩn hóa cấu trúc và Phân đoạn hội thoại}{13}{section.2.5}%
+\contentsline {subsection}{\numberline {2.5.1}Đồng nhất hóa Khuôn dạng}{14}{subsection.2.5.1}%
+\contentsline {subsection}{\numberline {2.5.2}Phân đoạn lượt lời}{14}{subsection.2.5.2}%
+\contentsline {section}{\numberline {2.6}Tiền xử lý dữ liệu}{14}{section.2.6}%
+\contentsline {chapter}{\numberline {3}Phương pháp và Kiến trúc Mô hình}{16}{chapter.3}%
+\contentsline {section}{\numberline {3.1}Lựa chọn Mô hình cơ sở}{16}{section.3.1}%
+\contentsline {section}{\numberline {3.2}Kiến trúc tổng quan}{17}{section.3.2}%
+\contentsline {subsection}{\numberline {3.2.1}Tầng mã hóa câu (Utterance Encoder)}{17}{subsection.3.2.1}%
+\contentsline {subsection}{\numberline {3.2.2}Tầng mã hóa hội thoại (Dialogue Encoder)}{17}{subsection.3.2.2}%
+\contentsline {subsection}{\numberline {3.2.3}Cơ chế Attention Pooling (Thay thế Random Init [CLS])}{17}{subsection.3.2.3}%
+\contentsline {section}{\numberline {3.3}Chiến lược Huấn luyện: Centroid-based Contrastive Learning}{18}{section.3.3}%
+\contentsline {subsection}{\numberline {3.3.1}Quản lý Centroid (Centroid Manager)}{18}{subsection.3.3.1}%
+\contentsline {subsection}{\numberline {3.3.2}Khai thác mẫu khó đa cấp độ (Multi-level Hard Mining)}{19}{subsection.3.3.2}%
+\contentsline {section}{\numberline {3.4}Hàm mất mát và Tối ưu hóa}{19}{section.3.4}%
+\contentsline {subsection}{\numberline {3.4.1}Focal Loss}{19}{subsection.3.4.1}%
+\contentsline {subsection}{\numberline {3.4.2}Triplet Margin Loss với Centroid}{19}{subsection.3.4.2}%
+\contentsline {subsection}{\numberline {3.4.3}Chiến lược trọng số động (Dynamic Loss Weighting)}{20}{subsection.3.4.3}%
+\contentsline {section}{\numberline {3.5}Chiến lược Huấn luyện và Tối ưu hóa Tài nguyên}{20}{section.3.5}%
+\contentsline {subsection}{\numberline {3.5.1}Kỹ thuật Tối ưu hóa Bộ nhớ}{21}{subsection.3.5.1}%
+\contentsline {subsubsection}{Gradient Checkpointing}{21}{section*.4}%
+\contentsline {subsubsection}{Mixed Precision Training}{21}{section*.5}%
+\contentsline {subsubsection}{Gradient Accumulation}{21}{section*.6}%
+\contentsline {subsection}{\numberline {3.5.2}Chiến lược Huấn luyện}{22}{subsection.3.5.2}%
+\contentsline {subsubsection}{Cơ chế đông cứng phân tầng}{22}{section*.7}%
+\contentsline {subsubsection}{Lịch trình tốc độ học (Learning Rate Scheduler)}{22}{section*.8}%
+\contentsline {subsection}{\numberline {3.5.3}Cấu hình Siêu tham số}{22}{subsection.3.5.3}%
+\contentsline {chapter}{\numberline {4}Thử nghiệm và Đánh giá}{24}{chapter.4}%
+\contentsline {section}{\numberline {4.1}Thiết lập thí nghiệm}{24}{section.4.1}%
+\contentsline {subsection}{\numberline {4.1.1}Môi trường phần cứng và phần mềm}{24}{subsection.4.1.1}%
+\contentsline {subsection}{\numberline {4.1.2}Thông số huấn luyện chung}{24}{subsection.4.1.2}%
+\contentsline {section}{\numberline {4.2}Tiêu chí đánh giá (Evaluation Metrics)}{25}{section.4.2}%
+\contentsline {section}{\numberline {4.3}Kết quả thực nghiệm}{26}{section.4.3}%
+\contentsline {subsection}{\numberline {4.3.1}Lựa chọn Backbone}{26}{subsection.4.3.1}%
+\contentsline {subsection}{\numberline {4.3.2}Nghiên cứu cắt lớp}{26}{subsection.4.3.2}%
+\contentsline {section}{\numberline {4.4}Phân tích sâu về quá trình cải tiến}{29}{section.4.4}%
+\contentsline {subsection}{\numberline {4.4.1}Từ Mean Pooling đến Attention Pooling (V1 $\rightarrow $ V5)}{29}{subsection.4.4.1}%
+\contentsline {subsection}{\numberline {4.4.2}Vai trò của dữ liệu người gọi (V6)}{29}{subsection.4.4.2}%
+\contentsline {subsection}{\numberline {4.4.3}Bước nhảy vọt nhờ Gộp nhãn (V7)}{29}{subsection.4.4.3}%
+\contentsline {subsection}{\numberline {4.4.4}Kết quả tối ưu cuối cùng (V8)}{29}{subsection.4.4.4}%
+\contentsline {section}{\numberline {4.5}Phân tích Định tính}{31}{section.4.5}%
+\contentsline {subsection}{\numberline {4.5.1}Trực quan hóa không gian đặc trưng}{31}{subsection.4.5.1}%
+\contentsline {subsection}{\numberline {4.5.2}Phân tích quá trình huấn luyện}{31}{subsection.4.5.2}%
+\contentsline {subsection}{\numberline {4.5.3}Phân tích sai số}{32}{subsection.4.5.3}%
+\contentsline {section}{\numberline {4.6}Kết luận chương}{34}{section.4.6}%
+\contentsline {chapter}{\numberline {5}Ứng dụng và Hướng phát triển}{35}{chapter.5}%
+\contentsline {section}{\numberline {5.1}Kịch bản triển khai thực tế}{35}{section.5.1}%
+\contentsline {section}{\numberline {5.2}Tác động xã hội}{35}{section.5.2}%
+\contentsline {section}{\numberline {5.3}Hạn chế và Hướng phát triển}{36}{section.5.3}%
+\contentsline {subsection}{\numberline {5.3.1}Hạn chế hiện tại}{36}{subsection.5.3.1}%
+\contentsline {subsection}{\numberline {5.3.2}Cải tiến trong tương lai (Future Work)}{36}{subsection.5.3.2}%
+\contentsline {chapter}{\numberline {6}Kết luận}{37}{chapter.6}%
+\contentsline {section}{\numberline {6.1}Tổng kết các đóng góp chính}{37}{section.6.1}%
+\contentsline {section}{\numberline {6.2}Đánh giá mức độ đạt mục tiêu}{37}{section.6.2}%
+\contentsline {section}{\numberline {6.3}Bài học kinh nghiệm}{38}{section.6.3}%
+\contentsline {section}{\numberline {6.4}Hướng phát triển tiếp theo}{39}{section.6.4}%
+\contentsline {chapter}{Tài liệu tham khảo}{40}{chapter*.9}%

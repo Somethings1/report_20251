@@ -1,0 +1,12 @@
+\babel@toc {vietnamese}{}\relax 
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {3.1}{\ignorespaces Kiến trúc tổng quan của mô hình}}{17}{figure.3.1}%
+\addvspace {10\p@ }
+\contentsline {figure}{\numberline {4.1}{\ignorespaces Biểu đồ quá trình huấn luyện của phiên bản tốt nhất (V8). Mô hình hội tụ nhanh và ổn định sau 10 epoch.}}{30}{figure.4.1}%
+\contentsline {figure}{\numberline {4.2}{\ignorespaces Trực quan hóa PCA: (Trái) Giai đoạn đầu huấn luyện - Các lớp dính chùm; (Phải) Sau khi áp dụng Contrastive Loss - Các cụm lừa đảo tách biệt rõ ràng.}}{31}{figure.4.2}%
+\contentsline {figure}{\numberline {4.3}{\ignorespaces Biểu đồ Loss và Accuracy trên W\&B. Đường màu tím (V2) cho thấy sự hội tụ nhanh và ổn định hơn so với đường màu xanh (Baseline) khi thêm Attention.}}{32}{figure.4.3}%
+\contentsline {figure}{\numberline {4.4}{\ignorespaces Confusion Matrix của mô hình V8 trên tập Test.}}{33}{figure.4.4}%
+\addvspace {10\p@ }
+\addvspace {10\p@ }

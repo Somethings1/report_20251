@@ -1,0 +1,787 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                   PREAMBLE CỦA BÁO CÁO                  %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\documentclass[12pt, a4paper, english]{report}
+
+% --- GÓI HỖ TRỢ TIẾNG VIỆT ---
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english, vietnamese]{babel}
+\usepackage{lmodern}
+\usepackage[style=english]{csquotes}
+
+% --- CĂN CHỈNH LỀ VÀ BỐ CỤC ---
+\usepackage[a4paper, margin=1in]{geometry} % Căn lề 1 inch (khoảng 2.54cm)
+\usepackage{setspace}
+\onehalfspacing % Giãn dòng 1.5
+
+% --- CÁC GÓI TIỆN ÍCH KHÁC ---
+\usepackage{graphicx} % Để chèn ảnh
+\usepackage{amsmath}  % Cho các công thức toán học
+\usepackage{amssymb}
+\usepackage{hyperref} % Tạo link trong file PDF
+\usepackage{booktabs}
+\usepackage{float}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{ragged2e}
+\usepackage[
+    backend=biber,
+    style=ieee,
+    language=american,
+    maxbibnames=99,
+    sorting=nty
+]{biblatex}
+\DeclareLanguageMapping{vietnamese}{english}
+\addbibresource{references.bib}
+\newcolumntype{P}[1]{>{\RaggedRight\arraybackslash}p{#1}}
+
+\hypersetup{
+    colorlinks=true,
+    linkcolor=black,
+    filecolor=magenta,
+    urlcolor=blue,
+    pdftitle={AI Ethics Report},
+    pdfpagemode=FullScreen,
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%                  BẮT ĐẦU NỘI DUNG VĂN BẢN                %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{document}
+
+% --- TRANG BÌA ---
+\begin{titlepage}
+    \centering
+
+    % --- Tên tổ chức ---
+
+    {\Large \bfseries Đại học Bách khoa Hà Nội}
+    \\
+    {\Large \bfseries Trường Công nghệ Thông tin và Truyền thông}
+    \vfill
+
+    \includegraphics[width=0.2\linewidth]{logo.png}
+    \vfill
+
+    % --- Tên báo cáo và dự án ---
+    {\Huge \bfseries BÁO CÁO BÀI TẬP LỚN}
+    \\
+    {\Large \bfseries IT4930 - Nhập môn Khoa học Dữ liệu}
+    \vspace{1cm}
+    \\
+    {\Large \bfseries Dự án: Mô hình Phát hiện và Phân loại
+    \\
+    Cuộc gọi lừa đảo}
+
+    \vfill
+
+    % --- Thông tin người hướng dẫn và nhóm ---
+    \begin{minipage}{0.8\textwidth}
+        \centering
+        \large
+        \begin{tabular}{l l l}
+            \bfseries Người hướng dẫn: & PGS.TS. Phạm Văn Hải & \\
+            \\
+            \bfseries Nhóm thực hiện:   & \textbf{{Đinh Công Thái}}     &   {20224898}\\
+                                        & \textbf{{Nguyễn Trung Long}}  &   {20224874}\\
+                                        & \textbf{{Đồng Phúc Lâm}}      &   {20225027}\\
+                                        & \textbf{{Nguyễn Minh Đức}}    &   {20224954}\\
+                                        & \textbf{{Trịnh Hồ Nhật Minh}} &   {20225048}\\
+        \end{tabular}
+    \end{minipage}
+
+    \vfill
+
+    % --- Địa điểm và thời gian ---
+    {\large Hà Nội, tháng 12 năm 2025}
+
+\end{titlepage}
+
+% --- MỤC LỤC ---
+\renewcommand{\listfigurename}{Danh mục hình}
+\renewcommand{\listtablename}{Danh mục bảng}
+
+\tableofcontents
+\listoftables
+\listoffigures
+\newpage
+\chapter{Giới thiệu bài toán}
+
+\section{Bối cảnh và động lực}
+
+\subsection{Sự bùng nổ của lừa đảo trực tuyến tại Việt Nam}
+Trong kỷ nguyên số, Việt Nam đang phải đối mặt với làn sóng tấn công lừa đảo qua viễn thông (telecom fraud) chưa từng có. Theo báo cáo từ Liên minh chống lừa đảo toàn cầu (GASA) được công bố vào cuối năm 2024, Việt Nam là một trong những quốc gia có tỷ lệ nạn nhân lừa đảo cao hàng đầu thế giới \cite{gasa2024vietnam}.
+Thống kê chỉ ra một thực tế đáng báo động: trung bình cứ \textbf{220 người dùng smartphone thì có 1 người sập bẫy lừa đảo trực tuyến} \cite{nca2024fraud}. Con số này cho thấy lừa đảo không còn là hiện tượng cá biệt mà đã trở thành rủi ro thường trực đối với bất kỳ ai sở hữu thiết bị di động.
+
+\subsection{Hạn chế của các phương pháp hiện hành và Bài toán đánh đổi hiệu năng}
+
+\textbf{Sự bất lực của các phương pháp truyền thống:}
+Các phương pháp bảo mật dựa trên định danh như Danh sách đen (Blacklist) hay Danh sách trắng (Whitelist) đã trở nên lạc hậu trước vấn nạn SIM rác và khả năng thay đổi số điện thoại liên tục của kẻ tấn công (VoIP spoofing) \cite{rebahi2011survey}. Song song đó, các mô hình Học máy truyền thống dựa trên đối sánh từ khóa (Keyword Matching) hay n-gram thường thất bại trong việc nắm bắt ngữ nghĩa sâu. Kẻ lừa đảo chỉ cần thay đổi cách diễn đạt hoặc sử dụng các từ lóng, ẩn dụ là có thể dễ dàng vượt qua các bộ lọc này.
+
+\textbf{Rào cản thực tế của xu hướng LLM-based:}
+Để giải quyết bài toán ngữ nghĩa, các nghiên cứu gần đây có xu hướng tận dụng sức mạnh của các Mô hình Ngôn ngữ Lớn (Large Language Models - LLMs) hoặc các mô hình embedding dựa trên LLaMA (như RepLlama) cho bài toán phân loại văn bản. Mặc dù các hướng tiếp cận này mang lại hiệu suất rất cao, chúng gặp phải rào cản chí mạng khi triển khai thực tế: \textbf{độ trễ suy luận quá lớn} \cite{zhou2024efficient}.
+Trong ngữ cảnh ngăn chặn lừa đảo viễn thông, hệ thống cần đưa ra cảnh báo gần như tức thời (near real-time). Việc chờ đợi các mô hình LLM đồ sộ xử lý trong vài giây đến vài chục giây là không khả thi và tốn kém tài nguyên tính toán.
+
+\textbf{Chiến lược đánh đổi:}
+Từ những phân tích trên, nghiên cứu này đề xuất một hướng tiếp cận cân bằng: Sử dụng mô hình ngôn ngữ kích thước trung bình (như halong\_embedding) kết hợp kiến trúc phân tầng (Hierarchical) \cite{yang2016hierarchical}. Chúng tôi chấp nhận một sự đánh đổi nhỏ về mặt hiệu suất so với các siêu mô hình để đổi lấy tốc độ xử lý vượt trội và khả năng triển khai diện rộng trên hạ tầng phổ thông.
+
+\section{Vấn đề cần giải quyết}
+
+\subsection{Định nghĩa bài toán}
+Nghiên cứu này giải quyết bài toán phân loại văn bản hội thoại đa lớp (Multi-class Dialogue Classification).
+Đầu vào của bài toán là một văn bản hội thoại (transcript) $D$, bao gồm một chuỗi các lượt lời (utterances): $D = \{u_1, u_2, ..., u_n\}$, trong đó $n$ là số lượng lượt lời. Mỗi lượt lời $u_i$ lại được cấu thành từ một chuỗi các từ (tokens).
+Mục tiêu là xây dựng một hàm ánh xạ $f: D \rightarrow y$, trong đó $y \in C$ là tập hợp các nhãn phân loại đã được định nghĩa trước.
+Trong phạm vi nghiên cứu này, tập nhãn $C$ bao gồm $|C| = 26$ lớp, chứa 01 lớp ``Vô hại'' (Harmless) và 25 lớp hành vi lừa đảo cụ thể (ví dụ: \textit{mạo danh công an, lừa đảo đầu tư, tuyển dụng giả mạo...}).
+
+\subsection{Các thách thức chính}
+Việc phân loại chính xác các cuộc gọi lừa đảo đối mặt với ba thách thức kỹ thuật lớn mà các mô hình phân loại văn bản thông thường khó giải quyết triệt để:
+
+\begin{itemize}
+    \item \textbf{Độ tương đồng ngữ nghĩa cao và Giả thuyết đa tạp:}
+    Khác với phân loại chủ đề thông thường, các kịch bản lừa đảo chia sẻ không gian từ vựng rất giống nhau (ví dụ: "Mạo danh công an" và "Mạo danh viện kiểm sát" đều dùng các từ như \textit{truy tố, hồ sơ, phong tỏa}).
+    Dưới góc độ của \textit{Giả thuyết đa tạp} \cite{cayton2005algorithms}, dữ liệu văn bản của các lớp này nằm trên các đa tạp (manifolds) phi tuyến tính trong không gian cao chiều. Do sự trùng lặp ngữ nghĩa, các đa tạp của các lớp lừa đảo khác nhau có xu hướng bị ``xoắn'' vào nhau hoặc nằm rất sát nhau tại các vùng biên.
+    Nếu mô hình chỉ học các ranh giới tuyến tính đơn giản mà không thực hiện được phép biến đổi topo để ``tách'' các đa tạp này ra, hiệu suất phân loại sẽ suy giảm đáng kể do sự nhầm lẫn giữa các lớp.
+
+    \item \textbf{Phụ thuộc ngữ cảnh dài:}
+    Dấu hiệu lừa đảo thường không nằm gọn trong một câu nói đơn lẻ mà được xây dựng qua một chuỗi hội thoại. Một câu nói như \textit{"Vui lòng chuyển tiền vào số tài khoản này"} có thể là vô hại trong ngữ cảnh mua hàng online, nhưng sẽ là lừa đảo trong ngữ cảnh mạo danh người thân. Mô hình cần có khả năng ghi nhớ và liên kết thông tin từ đầu đến cuối cuộc hội thoại thay vì chỉ xét các câu riêng lẻ \cite{yang2016hierarchical}.
+
+    \item \textbf{Sự mất cân bằng dữ liệu cực đoan:}
+    Trong thực tế, tỷ lệ cuộc gọi lừa đảo thấp hơn rất nhiều so với cuộc gọi bình thường. Ngay cả trong tập các cuộc gọi lừa đảo, cũng có những kịch bản phổ biến (như lừa đảo khóa SIM) và những kịch bản rất hiếm gặp. Nếu không có chiến lược xử lý phù hợp \cite{chawla2002smote}, mô hình sẽ có xu hướng học theo lớp đa số và bỏ qua các hành vi lừa đảo tinh vi nhưng ít xuất hiện.
+\end{itemize}
+
+\section{Tầm quan trọng và giá trị thực tế}
+
+Nghiên cứu này không chỉ mang ý nghĩa lý thuyết trong việc ứng dụng các mô hình ngôn ngữ tiên tiến vào bài toán thực tế, mà còn đóng góp giá trị to lớn trên ba khía cạnh chính:
+
+\begin{itemize}
+    \item \textbf{Bảo vệ người dùng cuối:}
+    Hệ thống đóng vai trò như một lớp tường lửa thông minh tích hợp trên thiết bị hoặc hạ tầng mạng. Khả năng phát hiện thời gian thực cho phép đưa ra cảnh báo ngay khi cuộc gọi có dấu hiệu lừa đảo, giúp ngăn chặn hành vi chuyển tiền hoặc cung cấp thông tin nhạy cảm trước khi hậu quả xảy ra. Đây là giải pháp phòng ngừa chủ động thay vì thụ động giải quyết hậu quả.
+
+    \item \textbf{Hỗ trợ quản lý và An ninh mạng:}
+    Thay vì chỉ đưa ra nhãn nhị phân (Có/Không), mô hình cung cấp khả năng phân loại "mịn" (Fine-grained classification) vào 25 loại hình lừa đảo cụ thể. Điều này giúp các cơ quan chức năng và nhà mạng:
+    \begin{itemize}
+        \item Xây dựng bản đồ tội phạm: Thống kê loại hình lừa đảo nào đang bùng phát tại thời điểm nào.
+        \item Truy vết nguồn gốc: Nhận diện các nhóm tội phạm dựa trên sự tương đồng về kịch bản.
+        \item Cập nhật chính sách: Đưa ra các cảnh báo cộng đồng chính xác hơn dựa trên dữ liệu thực tế.
+    \end{itemize}
+
+    \item \textbf{Tối ưu hóa vận hành và Khả năng mở rộng:}
+    Với hàng triệu cuộc gọi phát sinh mỗi ngày, việc giám sát thủ công là bất khả thi. Mô hình đề xuất, với kiến trúc tối ưu hóa về độ trễ, cho phép tự động hóa quy trình rà soát với chi phí thấp. Nó giải phóng nguồn lực con người khỏi công việc gán nhãn thủ công nhàm chán, cho phép tập trung vào các trường hợp phức tạp hoặc các kịch bản lừa đảo mới chưa từng xuất hiện.
+\end{itemize}
+
+\section{Phạm vi và giới hạn}
+
+Để đảm bảo tính khả thi và tập trung vào mục tiêu nghiên cứu chính, đề tài được giới hạn trong các phạm vi và điều kiện biên sau:
+
+\begin{itemize}
+    \item \textbf{Phạm vi dữ liệu và Ngôn ngữ:}
+    Nghiên cứu tập trung duy nhất vào xử lý dữ liệu Tiếng Việt. Đầu vào của mô hình là văn bản giả định đã được chuyển đổi từ giọng nói thông qua các hệ thống ASR (Automatic Speech Recognition) thương mại. Bài toán xử lý tiếng nói nằm ngoài phạm vi của nghiên cứu này.
+
+    \item \textbf{Vấn đề lan truyền lỗi:}
+    Do mô hình hoạt động trên văn bản đầu ra của ASR, độ chính xác của hệ thống phụ thuộc tuyến tính vào chất lượng của bộ ASR đó. Các lỗi nhận dạng (như sai tên riêng, từ đồng âm khác nghĩa) có thể ảnh hưởng đến kết quả phân loại \cite{nguyen2022impact}. Tuy nhiên, mô hình ngôn ngữ lớn được kỳ vọng có khả năng tự sửa lỗi ngữ cảnh ở mức độ nhất định.
+
+    \item \textbf{Thiếu hụt thông tin phi ngôn ngữ:}
+    Vì chỉ xử lý văn bản, mô hình hiện tại bỏ qua các đặc trưng âm thanh quan trọng như giọng điệu (tone), ngữ điệu (prosody), khoảng lặng (pause) hay cảm xúc người nói (emotion). Một số kịch bản lừa đảo tinh vi dựa trên việc thao túng cảm xúc (như giả giọng khóc lóc, quát tháo) có thể bị bỏ sót nếu văn bản thuần túy không thể hiện được các sắc thái này.
+
+    \item \textbf{Giới hạn cửa sổ ngữ cảnh:}
+    Để đảm bảo tốc độ suy luận nhanh, mô hình giới hạn độ dài hội thoại đầu vào (ví dụ: 12 lượt lời đầu tiên). Điều này đồng nghĩa với việc nếu dấu hiệu lừa đảo chỉ xuất hiện ở cuối một cuộc hội thoại dài, mô hình có thể không phát hiện được. Đây là sự đánh đổi chấp nhận được giữa Hiệu năng và Tốc độ.
+\end{itemize}
+
+\section{Cơ sở công nghệ và Lựa chọn hướng tiếp cận}
+
+\subsection{Sự phổ biến của công nghệ nhận dạng giọng nói (ASR)}
+Hiện nay, công nghệ nhận dạng giọng nói tự động đã đạt được độ chính xác rất cao và trở thành một tính năng tiêu chuẩn trên hầu hết các thiết bị di động thông minh. Các nền tảng hệ điều hành (như iOS, Android) và các dịch vụ đám mây (Google Cloud Speech-to-Text, Viettel AI, FPT.AI) đều cung cấp API chuyển đổi giọng nói thành văn bản với độ trễ thấp và khả năng xử lý tiếng Việt tốt.
+Điều này tạo ra tiền đề công nghệ vững chắc, cho phép hệ thống phân loại lừa đảo có thể tin cậy vào đầu vào là dữ liệu văn bản chất lượng cao thay vì phải xử lý trực tiếp tín hiệu âm thanh thô.
+
+\subsection{Ưu thế của mô hình ngôn ngữ (Hierarchical BERT) so với mô hình âm thanh (CNN-based)}
+Trong bài toán phát hiện lừa đảo, ``kịch bản'' và ``ngữ nghĩa'' đóng vai trò quan trọng hơn ``giọng điệu''. Do đó, việc lựa chọn hướng tiếp cận dựa trên văn bản (Text-based) sử dụng kiến trúc Hierarchical BERT mang lại nhiều ưu điểm vượt trội so với các mô hình xử lý tín hiệu âm thanh (Audio-based) như CNN hay RNN truyền thống:
+
+\begin{itemize}
+    \item \textbf{Mật độ thông tin ngữ nghĩa:} Các mô hình CNN trên miền âm thanh thường tập trung vào trích xuất đặc trưng cục bộ và dễ bị ảnh hưởng bởi nhiễu môi trường (noise). Ngược lại, BERT (và biến thể halong\_embedding) \cite{phobert2020} đã được huấn luyện trên lượng dữ liệu văn bản khổng lồ, có khả năng thấu hiểu ngữ cảnh, ý định và mối quan hệ giữa các từ ngữ phức tạp trong tiếng Việt tốt hơn nhiều.
+
+    \item \textbf{Cấu trúc phân cấp:} Một cuộc hội thoại lừa đảo thường kéo dài qua nhiều lượt lời. Mô hình CNN truyền thống thường gặp khó khăn trong việc nắm bắt sự phụ thuộc xa. Kiến trúc Hierarchical (như mô hình đề xuất) \cite{yang2016hierarchical} mô phỏng chính xác cấu trúc tự nhiên của hội thoại: Từ (Word) tạo thành Câu (Utterance), và các Câu tạo thành Hội thoại (Dialogue). Điều này giúp tối ưu hóa việc học các mẫu hành vi lừa đảo ẩn sâu trong luồng đối thoại.
+
+    \item \textbf{Hiệu năng tính toán:} Việc xử lý trực tiếp tín hiệu âm thanh đòi hỏi băng thông và năng lực tính toán lớn. Bằng cách tận dụng các module ASR có sẵn trên thiết bị hoặc server, mô hình phân loại chỉ cần xử lý văn bản, giúp giảm tải đáng kể tài nguyên hệ thống và tăng tốc độ phản hồi.
+\end{itemize}
+
+\chapter{Dữ liệu và Quy trình Xử lý}
+
+\section{Nguồn dữ liệu và Định nghĩa nhãn}
+
+Để đảm bảo tính đa dạng và sát với thực tế triển khai, tập dữ liệu trong nghiên cứu được xây dựng theo phương pháp lai, kết hợp giữa dữ liệu thực tế và dữ liệu tổng hợp. Hệ thống nhãn và kịch bản được tham chiếu trực tiếp từ tài liệu nghiệp vụ của Tập đoàn Công nghiệp - Viễn thông Quân đội Viettel.
+
+\subsection{Cấu trúc nhãn}
+Không gian nhãn của bài toán bao gồm tổng cộng \textbf{26 lớp}, được định nghĩa dựa trên danh mục các mối đe dọa viễn thông hiện hành:
+\begin{itemize}
+    \item \textbf{01 Nhãn Harmless (Vô hại):} Bao gồm các cuộc gọi sinh hoạt đời thường, giao vận, đặt lịch hẹn, trao đổi công việc không chứa yếu tố lừa đảo.
+    \item \textbf{25 Nhãn Scam (Lừa đảo):} Bao gồm 46 kịch bản lừa đảo chi tiết được cung cấp bởi Viettel và chuẩn hóa lại thành 25 lớp để tránh hỗn tạp ngữ nghĩa (ví dụ: \textit{Lừa đảo khóa SIM sau 2 giờ, Mạo danh Cục Cảnh sát giao thông phạt nguội, Giả mạo nhân viên sàn thương mại điện tử tuyển cộng tác viên...}).
+\end{itemize}
+
+\subsection{Thành phần dữ liệu}
+Tổng số mẫu dữ liệu thu thập được là \textbf{18,686 đoạn hội thoại}, được tổng hợp từ ba nguồn chính:
+\begin{enumerate}
+    \item \textbf{Dữ liệu lừa đảo thực tế:} Khoảng 3,000 mẫu dữ liệu nội bộ được cung cấp bởi Tập đoàn Viettel. Đây là các transcript từ các cuộc gọi lừa đảo đã được báo cáo và xác minh, mang tính đại diện cao cho các kịch bản tấn công thực tế.
+    \item \textbf{Dữ liệu vô hại thực tế:} Khoảng 5,000 mẫu transcript được khai thác từ kho dữ liệu mở của Trung tâm Dữ liệu Quốc gia và các nguồn dữ liệu hội thoại tiếng Việt công khai (như Vivos \cite{luong2016vivos}, VinBigData), đảm bảo tính tự nhiên của ngôn ngữ đời sống.
+    \item \textbf{Dữ liệu tổng hợp:} Phần còn lại (khoảng 10,000 mẫu) được sinh ra bằng cách sử dụng các Mô hình Ngôn ngữ Lớn (LLMs) \cite{ding2023gpt}. Quy trình sinh dữ liệu tuân thủ nghiêm ngặt các từ khóa (keywords) và logic kịch bản trong file mô tả nghiệp vụ của Viettel, nhằm làm giàu dữ liệu cho các lớp hiếm gặp.
+\end{enumerate}
+
+\section{Phân tích đặc điểm dữ liệu (EDA)}
+Dữ liệu thể hiện sự mất cân bằng nghiêm trọng, phản ánh đúng bản chất phân phối của các cuộc gọi trên mạng viễn thông:
+\begin{itemize}
+    \item \textbf{Lớp Harmless:} Chiếm đa số áp đảo với 14,111 mẫu (tương đương 75.5\% tổng dữ liệu).
+    \item \textbf{Các lớp Scam:} Tổng cộng 4,575 mẫu, phân bố rải rác trong 25 loại hình.
+    \item \textbf{Phân phối nội bộ các lớp Scam:} Số lượng mẫu không đồng đều, dao động từ thấp nhất 68 mẫu (\textit{lừa đảo du lịch}) đến cao nhất 162 mẫu (\textit{lừa đảo chuyển tiền}). Trung bình mỗi lớp scam chỉ có khoảng 100 mẫu, đặt ra thách thức lớn về việc học đặc trưng (feature learning).
+    \item \textbf{Đặc trưng độ dài:} Trung bình mỗi cuộc hội thoại kéo dài 9.18 lượt lời (turns). Độ dài tối đa sau khi làm sạch là 12 turns, tập trung vào giai đoạn ``mở bài'' và ``dẫn dắt'' của kẻ lừa đảo.
+\end{itemize}
+
+\section{Phân chia tập dữ liệu}
+Trước khi thực hiện bất kỳ kỹ thuật tăng cường nào, dữ liệu gốc được chia tách để đảm bảo tính khách quan của quá trình đánh giá. Chúng tôi sử dụng chiến lược \textit{Stratified Split} để bảo toàn tỷ lệ phân phối của các lớp (đặc biệt là các lớp hiếm) trên cả 3 tập. Tỷ lệ phân chia là 80/10/10:
+\begin{itemize}
+    \item \textbf{Tập Huấn luyện (Train):} ~14,948 mẫu và phần lớn là dữ liệu được sinh ra bằng LLMs. Chỉ tập này mới được áp dụng các kỹ thuật tăng cường dữ liệu.
+    \item \textbf{Tập Kiểm định (Validation):} 1,869 mẫu. Dùng để tinh chỉnh siêu tham số và đánh giá sớm.
+    \item \textbf{Tập Kiểm thử (Test):} 1,869 mẫu. Dữ liệu hoàn toàn nguyên bản là dữ liệu thật, dùng để đánh giá hiệu năng cuối cùng.
+\end{itemize}
+
+\section{Chiến lược Tăng cường dữ liệu}
+Để giải quyết vấn đề thiếu hụt dữ liệu ở các lớp Scam và tăng cường khả năng chống chịu lỗi của mô hình trước các sai sót của hệ thống nhận dạng giọng nói, chúng tôi áp dụng quy trình Tăng cường dữ liệu \textbf{chỉ trên tập Train} với các kỹ thuật sau:
+
+\subsection{Mô phỏng lỗi nhận dạng}
+Sử dụng thư viện `nlpaug' \cite{ma2019nlpaug} để mô phỏng các lỗi thường gặp khi chuyển đổi Speech-to-Text:
+\begin{itemize}
+    \item \textbf{Thay thế từ đồng âm:} Thay thế các từ bằng từ khác có âm đọc giống hoặc gần giống (ví dụ: ``chuyển khoản'' $\rightarrow$ ``chiển khoản'', ``ngân hàng'' $\rightarrow$ ``ngân hằng''). Kỹ thuật này giúp mô hình học được ngữ nghĩa dựa trên ngữ cảnh thay vì bắt từ khóa cứng nhắc.
+    \item \textbf{Mô phỏng nhiễu bàn phím:} Thay thế ký tự dựa trên khoảng cách phím QWERTY, mô phỏng lỗi gõ sai trong quá trình chuẩn hóa văn bản thủ công (nếu có).
+\end{itemize}
+
+\subsection{Dịch ngược}
+Áp dụng cho các mẫu thuộc các lớp Scam hiếm. Văn bản Tiếng Việt được dịch sang Tiếng Anh (sử dụng mô hình dịch máy) và dịch ngược lại Tiếng Việt \cite{sennrich2016improving}. Phương pháp này giúp tạo ra các biến thể câu mới với cấu trúc ngữ pháp khác biệt nhưng vẫn giữ nguyên ý nghĩa gốc, giúp mô hình tránh bị quá khớp vào các mẫu câu cố định.
+
+\subsection{Cắt ngẫu nhiên}
+Mô phỏng hiện tượng mất tín hiệu hoặc ngắt quãng trong cuộc gọi VoIP. Chúng tôi xóa ngẫu nhiên một số từ hoặc một lượt lời ngắn trong hội thoại với xác suất thấp ($p=0.1$) \cite{wei2019eda}. Điều này buộc mô hình phải học cách suy luận dựa trên các thông tin còn sót lại.
+
+\section{Chuẩn hóa cấu trúc và Phân đoạn hội thoại}
+
+Do dữ liệu đầu vào được tổng hợp từ nhiều nguồn không đồng nhất (dữ liệu nghiệp vụ, dữ liệu mở, và dữ liệu sinh từ LLM), bước đầu tiên trong quy trình xử lý là xây dựng cơ chế ánh xạ để đưa toàn bộ dữ liệu thô về một định dạng chuẩn, phục vụ cho kiến trúc phân tầng của mô hình.
+
+\subsection{Đồng nhất hóa Khuôn dạng}
+Mọi mẫu dữ liệu thô, bất kể định dạng gốc (Excel, CSV, hay JSON phi cấu trúc), đều được chuyển đổi về một schema JSON tiêu chuẩn duy nhất. Cấu trúc của một mẫu dữ liệu $D$ sau khi chuẩn hóa được định nghĩa tường minh:
+\begin{equation}
+    D = \{ \textbf{id}: \text{String}, \ \textbf{label}: \text{Int} \in [0, 25], \ \textbf{dialogue}: [u_1, u_2, ..., u_n] \}
+\end{equation}
+Trong đó, trường \texttt{dialogue} là một danh sách chứa chuỗi các lượt lời, đảm bảo tính nhất quán về kiểu dữ liệu đầu vào cho các bước xử lý tiếp theo.
+
+\subsection{Phân đoạn lượt lời}
+Kiến trúc Hierarchical BERT yêu cầu đầu vào phải được tách biệt rõ ràng giữa các câu thoại để học được mối quan hệ ngữ cảnh.
+\begin{itemize}
+    \item \textbf{Cơ chế tách:} Đối với các transcript dạng văn bản liền mạch (raw text), chúng tôi áp dụng các quy tắc Heuristic kết hợp biểu thức chính quy (Regex) để nhận diện điểm chuyển giao người nói (Speaker Diarization tags) hoặc dấu ngắt câu đặc thù.
+    \item \textbf{Mục tiêu:} Biến đổi văn bản thô thành chuỗi các lượt lời $(u_1, u_2, ...)$ tương ứng với các bước trong kịch bản (ví dụ: $u_1$: Chào hỏi $\rightarrow$ $u_2$: Dẫn dắt $\rightarrow$ $u_3$: Đe dọa). Việc phân đoạn chính xác giúp mô hình nắm bắt được ``nhịp điệu'' và logic tấn công của kẻ lừa đảo thay vì chỉ xử lý một khối văn bản hỗn độn.
+\end{itemize}
+
+\section{Tiền xử lý dữ liệu}
+Sau khi tăng cường, dữ liệu đi qua luồng xử lý cuối cùng trước khi đưa vào mô hình:
+\begin{enumerate}
+    \item \textbf{Tokenization:} Sử dụng `AutoTokenizer' \cite{wolf2020transformers} từ mô hình `hiieu/halong\_embedding-base' để tách từ và mã hóa văn bản, tận dụng khả năng xử lý tiếng Việt ưu việt của halong\_embedding.
+    \item \textbf{Cắt gọt và Định dạng (Truncation \& Padding):}
+    \begin{itemize}
+        \item Giới hạn số lượng lượt lời tối đa (MAX\_TURNS) là 12.
+        \item Giới hạn độ dài token tối đa cho mỗi lượt lời (TOKENIZER\_MAX\_LEN) là 128 tokens.
+    \end{itemize}
+    \item \textbf{Cân bằng dữ liệu:}
+    Sau bước Augmentation, kỹ thuật \textbf{Oversampling} tiếp tục được áp dụng trên tập Train. Các lớp Scam vẫn còn ít mẫu hơn mức trung bình sẽ được nhân bản ngẫu nhiên để đạt ngưỡng cân bằng (Target Oversample = $1.5 \times$ trung bình số mẫu scam), nâng tổng số mẫu huấn luyện thực tế lên 16,777 mẫu. Điều này triệt tiêu thiên kiến của mô hình đối với lớp đa số (Harmless).
+\end{enumerate}
+
+
+\chapter{Phương pháp và Kiến trúc Mô hình}
+
+Chương này trình bày chi tiết kiến trúc mạng nơ-ron phân tầng (Hierarchical Neural Network) được đề xuất để giải quyết bài toán phân loại cuộc gọi lừa đảo. Thay vì sử dụng các phương pháp tinh chỉnh đơn thuần, chúng tôi thiết kế một kiến trúc chuyên biệt kết hợp giữa khả năng hiểu ngữ nghĩa của Mô hình Ngôn ngữ Lớn và không gian embedding được tối ưu hóa thông qua học tương phản.
+
+\section{Lựa chọn Mô hình cơ sở}
+
+Với đặc thù bài toán yêu cầu biểu diễn ngữ nghĩa ở cấp độ câu cho tiếng Việt, nghiên cứu lựa chọn \textbf{halong\_embedding} làm mô hình nền cho tầng mã hóa câu (Sentence Encoder).
+
+\begin{itemize}
+    \item \textbf{Lý do lựa chọn:} halong\_embedding là mô hình sinh embedding ở cấp độ câu, được xây dựng theo hướng \textit{sentence-level representation learning}, thay vì chỉ học biểu diễn ngữ cảnh ở cấp độ token. Mô hình được huấn luyện trên tập dữ liệu tiếng Việt quy mô lớn (khoảng 20GB văn bản), với kiến trúc Transformer encoder làm backbone \cite{vaswani2017attention} và được tối ưu hóa để các câu có ngữ nghĩa tương đồng được ánh xạ gần nhau trong không gian vector. Nhờ đó, halong\_embedding đặc biệt phù hợp cho các tác vụ như phân loại văn bản, truy hồi ngữ nghĩa và phát hiện nội dung tương đồng trong tiếng Việt.
+
+    \item \textbf{Chiến lược tinh chỉnh hiệu quả (PEFT):} Thay vì tinh chỉnh toàn bộ mô hình với hàng trăm triệu tham số, nghiên cứu áp dụng phương pháp \textbf{LoRA (Low-Rank Adaptation)} \cite{hu2021lora} nhằm giảm chi phí huấn luyện và hạn chế hiện tượng \textit{catastrophic forgetting}. LoRA chèn các ma trận hạng thấp vào các phép biến đổi tuyến tính trong khối Attention (đặc biệt là các nhánh \textit{Query} và \textit{Value}), cho phép mô hình thích nghi với miền dữ liệu lừa đảo trong khi chỉ cần cập nhật một tỷ lệ rất nhỏ tham số.
+\end{itemize}
+
+
+\section{Kiến trúc tổng quan}
+
+Mô hình được xây dựng theo kiến trúc phân tầng (Hierarchical Architecture) để mô phỏng cấu trúc tự nhiên của hội thoại: \textit{Từ tạo thành Câu, Câu tạo thành Hội thoại}.
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/architecture.drawio.png}
+    \caption{Kiến trúc tổng quan của mô hình}
+    \label{fig:placeholder}
+\end{figure}
+
+\subsection{Tầng mã hóa câu (Utterance Encoder)}
+Đầu vào là một lượt lời $u_i$ gồm chuỗi các token. halong\_embedding đóng vai trò trích xuất đặc trưng ngữ nghĩa cục bộ:
+\begin{equation}
+    h_i = \text{halong\_embedding}(u_i) \in \mathbb{R}^{d_{model}}
+\end{equation}
+Trong đó $h_i$ là vector đại diện cho lượt lời thứ $i$, được lấy từ output của model.
+
+\subsection{Tầng mã hóa hội thoại (Dialogue Encoder)}
+Để nắm bắt sự phụ thuộc thời gian và ngữ cảnh giữa các lượt lời trong chuỗi hội thoại $D = \{h_1, h_2, ..., h_T\}$, chúng tôi sử dụng khối \textbf{Transformer Encoder} tiêu chuẩn \cite{vaswani2017attention}.
+Khối này giúp mô hình hiểu được dòng chảy của cuộc gọi (ví dụ: lời chào $\rightarrow$ dẫn dắt $\rightarrow$ đe dọa) thông qua cơ chế Self-Attention đa đầu (Multi-head Self-Attention).
+
+\subsection{Cơ chế Attention Pooling (Thay thế Random Init [CLS])}
+Đây là cải tiến quan trọng so với các phương pháp thông thường.
+Trong các mô hình BERT tiêu chuẩn, vector đại diện cho cả văn bản thường là token `[CLS]' (được khởi tạo ngẫu nhiên và học từ đầu) hoặc Max/Mean Pooling. Tuy nhiên, trong một cuộc gọi lừa đảo, không phải lượt lời nào cũng quan trọng như nhau (ví dụ: câu ``Alo'' ít thông tin hơn câu ``Chuyển tiền ngay'').
+
+Chúng tôi đề xuất sử dụng cơ chế \textbf{Attention Pooling} để học trọng số tầm quan trọng cho từng lượt lời, thay vì gán trọng số bằng nhau (Mean Pooling) hay chỉ lấy vector cuối cùng.
+Giả sử $H = \{h'_1, h'_2, ..., h'_T\}$ là đầu ra của Dialogue Encoder, vector đại diện hội thoại $v$ được tính như sau:
+
+\begin{equation}
+    a_i = \text{tanh}(W_a h'_i + b_a)
+\end{equation}
+\begin{equation}
+    \alpha_i = \frac{\exp(a_i^T u_a)}{\sum_{j=1}^T \exp(a_j^T u_a)}
+\end{equation}
+\begin{equation}
+    v = \sum_{i=1}^T \alpha_i h'_i
+\end{equation}
+
+Trong đó, $u_a$ là vector ngữ cảnh (context vector) được học trong quá trình huấn luyện. Phương pháp này tận dụng tối đa tri thức từ các tầng trước đó và cho phép mô hình ``tập trung'' vào các câu mang tính chất quyết định hành vi lừa đảo.
+
+\section{Chiến lược Huấn luyện: Centroid-based Contrastive Learning}
+
+Một thách thức lớn của bài toán phân loại 26 lớp với dữ liệu mất cân bằng là ranh giới giữa các lớp thường rất mờ nhạt. Để giải quyết vấn đề này, chúng tôi kết hợp hàm mất mát phân loại (Cross Entropy) với học tương phản (Contrastive Learning).
+
+Tuy nhiên, các phương pháp Contrastive Learning truyền thống (như SimCLR \cite{chen2020simple}, Triplet Loss thông thường) thường yêu cầu \textit{Batch Size} rất lớn để tìm được cặp mẫu âm tính đủ khó. Để khắc phục hạn chế về phần cứng (VRAM) và ổn định quá trình huấn luyện, nghiên cứu sử dụng phương pháp \textbf{Centroid-based Contrastive Learning} (lấy cảm hứng từ Prototypical Networks \cite{snell2017prototypical}).
+
+\subsection{Quản lý Centroid (Centroid Manager)}
+Thay vì so sánh các mẫu dữ liệu với nhau (sample-to-sample), chúng tôi so sánh mẫu dữ liệu với tâm cụm (centroid) của các lớp (sample-to-class).
+\begin{itemize}
+    \item Mỗi lớp $c \in C$ được đại diện bởi một vector centroid $\mu_c$.
+    \item Centroid không phải là tham số cố định mà được cập nhật liên tục theo phương pháp trung bình di động mũ (Exponential Moving Average - EMA) trong quá trình huấn luyện:
+    \begin{equation}
+        \mu_c^{(t)} = \beta \mu_c^{(t-1)} + (1 - \beta) \bar{v}_c^{(t)}
+    \end{equation}
+    Trong đó $\bar{v}_c^{(t)}$ là trung bình các vector đặc trưng của lớp $c$ trong batch hiện tại.
+\end{itemize}
+\textbf{Ưu điểm:} Phương pháp này giúp hiệu suất mô hình \textbf{không phụ thuộc vào kích thước Batch Size}, đồng thời giúp biểu diễn của các lớp ổn định hơn (stable representation).
+
+\subsection{Khai thác mẫu khó đa cấp độ (Multi-level Hard Mining)}
+Hệ thống sử dụng cơ chế ``đào'' mẫu khó (Hard Mining) ở 3 cấp độ để tối ưu hóa không gian vector:
+
+\begin{itemize}
+    \item \textbf{Level 1 - Phân tách nhị phân (Global Separation):} Đẩy xa tất cả các mẫu thuộc lớp Scam ra khỏi cụm Harmless.
+    \item \textbf{Level 2 - Phân tách liên lớp (Inter-class Separation):} Với một mẫu Scam loại A, mô hình kéo nó về gần centroid A (Positive) và đẩy xa khỏi centroid của lớp Scam B bất kỳ (Random Negative).
+    \item \textbf{Level 3 - Tinh chỉnh cục bộ (Fine-grained Separation):} Đây là cấp độ khó nhất. Với mẫu Scam loại A, mô hình tìm centroid của lớp Scam ``giống nó nhất'' (Hardest Negative - ví dụ lớp B có vector gần A nhất) để đẩy ra. Điều này buộc mô hình phải học được các đặc trưng cực kỳ chi tiết để phân biệt các kịch bản lừa đảo na ná nhau.
+\end{itemize}
+
+\section{Hàm mất mát và Tối ưu hóa}
+
+Hàm mất mát tổng thể là sự kết hợp có trọng số giữa Loss phân loại và Loss tương phản:
+\begin{equation}
+    \mathcal{L}_{total} = \mathcal{L}_{CE} + \lambda \mathcal{L}_{Contrastive}
+\end{equation}
+
+\subsection{Focal Loss}
+Thay vì sử dụng Cross Entropy tiêu chuẩn, chúng tôi sử dụng \textbf{Focal Loss} \cite{lin2017focal} để tập trung vào các mẫu khó phân loại (hard examples) và giảm trọng số của các mẫu dễ (như lớp Harmless chiếm đa số).
+\begin{equation}
+    FL(p_t) = -\alpha_t (1 - p_t)^\gamma \log(p_t)
+\end{equation}
+Với $\gamma = 2.5$ giúp mô hình phạt nặng hơn các dự đoán sai trên các lớp hiếm.
+
+\subsection{Triplet Margin Loss với Centroid}
+Hàm mất mát tương phản được định nghĩa dựa trên khoảng cách Euclidean (theo cơ chế Triplet Loss \cite{schroff2015facenet}):
+\begin{equation}
+    \mathcal{L}_{triplet}(a, p, n) = \max(0, \|f(a) - f(p)\|_2^2 - \|f(a) - f(n)\|_2^2 + m)
+\end{equation}
+Trong đó:
+\begin{itemize}
+    \item $a$: Anchor (Mẫu đầu vào).
+    \item $p$: Positive (Centroid của đúng lớp đó).
+    \item $n$: Negative (Centroid của lớp khác, được chọn theo chiến lược Hard Mining).
+    \item $m$: Margin (Biên độ), được thiết lập giảm dần theo các Level (Lv1 > Lv2 > Lv3) để siết chặt không gian biểu diễn.
+\end{itemize}
+
+\subsection{Chiến lược trọng số động (Dynamic Loss Weighting)}
+Một thách thức lớn khi kết hợp Cross-Entropy Loss ($\mathcal{L}_{CE}$) và Contrastive Loss ($\mathcal{L}_{Ct}$) là sự chênh lệch về độ lớn gradient. Trong giai đoạn đầu, khi các vector embedding chưa mang nhiều ý nghĩa ngữ nghĩa, việc ép buộc Contrastive Loss quá lớn có thể khiến mô hình khó hội tụ.
+
+Chúng tôi đề xuất cơ chế cập nhật trọng số động cho thành phần Contrastive Loss theo lịch trình tuyến tính (Linear Schedule). Trọng số $\lambda_{ct}$ tại epoch thứ $t$ được tính như sau:
+
+\begin{equation}
+    \lambda_{ct}^{(t)} = \lambda_{min} + (\lambda_{max} - \lambda_{min}) \times \frac{t}{T_{total}}
+\end{equation}
+
+Trong thực nghiệm: $\lambda_{min} = 0.1$, $\lambda_{max} = 1.0$.
+\begin{itemize}
+    \item \textbf{Giai đoạn đầu (Epoch 0-5):} $\lambda_{ct}$ nhỏ, mô hình tập trung học phân loại cơ bản bằng $\mathcal{L}_{CE}$.
+    \item \textbf{Giai đoạn sau:} $\lambda_{ct}$ tăng dần, ép buộc mô hình tinh chỉnh không gian vector để tách biệt các lớp khó.
+\end{itemize}
+Cơ chế này giúp ổn định quá trình huấn luyện và tránh hiện tượng "bùng nổ" loss (loss explosion) ở những epoch đầu tiên.
+
+\section{Chiến lược Huấn luyện và Tối ưu hóa Tài nguyên}
+
+Việc huấn luyện các mô hình dựa trên Transformer (như halong\_embedding) kết hợp với các cơ chế phức tạp (Contrastive Learning, Attention Pooling) thường đòi hỏi tài nguyên tính toán khổng lồ. Để triển khai huấn luyện hiệu quả trên hạ tầng phần cứng giới hạn (Single GPU với VRAM hạn chế) mà vẫn đảm bảo sự hội tụ tốt nhất, chúng tôi áp dụng các kỹ thuật tối ưu hóa bộ nhớ và chiến lược tinh chỉnh tham số chuyên sâu.
+
+\subsection{Kỹ thuật Tối ưu hóa Bộ nhớ}
+
+Để giải quyết bài toán giới hạn bộ nhớ GPU (Out-Of-Memory - OOM) khi huấn luyện mô hình phân tầng với ngữ cảnh dài, nghiên cứu áp dụng đồng thời ba kỹ thuật tối ưu hóa tiên tiến:
+
+\subsubsection{Gradient Checkpointing}
+Mặc định, quá trình lan truyền xuôi sẽ lưu trữ toàn bộ các activations trung gian để phục vụ cho việc tính đạo hàm trong lan truyền ngược. Với mô hình Hierarchical, số lượng activations này tăng tuyến tính theo số lượng lượt lời, gây bùng nổ bộ nhớ.
+Chúng tôi sử dụng kỹ thuật \textbf{Gradient Checkpointing} \cite{chen2016training}. Thay vì lưu tất cả, hệ thống chỉ lưu các activations tại một số nút chiến lược. Các giá trị trung gian sẽ được tính toán lại trong quá trình backward.
+\begin{itemize}
+    \item \textbf{Hiệu quả:} Giảm mức tiêu thụ VRAM xuống khoảng 40-50\%, cho phép tăng kích thước Batch Size hoặc độ dài ngữ cảnh đầu vào.
+    \item \textbf{Đánh đổi:} Tăng thời gian huấn luyện lên khoảng 20-30\% do chi phí tính toán lại, nhưng đây là sự đánh đổi cần thiết để mô hình có thể khởi chạy được.
+\end{itemize}
+
+\subsubsection{Mixed Precision Training}
+Sử dụng thư viện `torch.amp' (Automatic Mixed Precision) \cite{micikevicius2017mixed} để thực hiện các phép tính nhân ma trận dưới định dạng dấu phẩy động 16-bit (FP16) trong khi vẫn giữ trọng số chính ở định dạng 32-bit (FP32) để đảm bảo độ ổn định số học.
+Kỹ thuật này giúp giảm một nửa dung lượng bộ nhớ cần thiết cho việc lưu trữ trọng số và gradients, đồng thời tận dụng các nhân Tensor Core trên GPU hiện đại để tăng tốc độ tính toán.
+
+\subsubsection{Gradient Accumulation}
+Để mô phỏng một kích thước batch lớn (Large Batch Size) - yếu tố quan trọng giúp ổn định cập nhật Centroid và Batch Normalization - trong khi bộ nhớ vật lý chỉ chịu tải được `Micro-Batch' nhỏ, chúng tôi sử dụng \textbf{Gradient Accumulation}.
+Gradient được tính toán và tích lũy qua nhiều bước trước khi thực hiện một lần cập nhật trọng số.
+\begin{equation}
+    \text{Effective Batch Size} = \text{Micro Batch Size} \times \text{Accumulation Steps}
+\end{equation}
+Trong thực nghiệm, Micro Batch được thiết lập là 16 và tích lũy qua 2 bước để đạt Effective Batch Size là 32, đảm bảo sự ổn định thống kê cho hàm Loss.
+
+\subsection{Chiến lược Huấn luyện}
+
+\subsubsection{Cơ chế đông cứng phân tầng}
+Trong bài toán phát hiện lừa đảo, dữ liệu huấn luyện thường có mức độ nhiễu cao và phân bố khác biệt đáng kể so với tập dữ liệu tổng quát dùng để tiền huấn luyện \texttt{halong\_embedding}. Nếu tinh chỉnh toàn bộ mô hình ngay từ đầu, các gradient lớn sinh ra từ dữ liệu đặc thù này có thể làm suy giảm hoặc phá hủy các biểu diễn ngôn ngữ phổ quát đã được học trước đó, dẫn đến hiện tượng \textit{Catastrophic Forgetting}.
+
+Để giảm thiểu rủi ro này và đảm bảo quá trình thích nghi diễn ra ổn định, chúng tôi áp dụng chiến lược \textbf{đông cứng phân tầng (layer-wise freezing)} với cơ chế mở khóa dần dần:
+
+\begin{itemize}
+    \item \textbf{Giai đoạn Warm-up (Epoch 0--3):}
+    Toàn bộ các tham số của backbone model \texttt{halong\_embedding} được ``đông cứng'' (freeze), chỉ cho phép cập nhật các thành phần được khởi tạo mới (Attention Pooling, Classifier Head) cùng với các ma trận thích nghi LoRA.
+    Cách tiếp cận này giúp mô hình:
+    (i) học cách ánh xạ các biểu diễn ngôn ngữ sẵn có sang không gian nhãn lừa đảo,
+    (ii) ổn định các trọng số mới trước khi cho phép tác động ngược trở lại lên backbone,
+    từ đó tránh việc các gradient nhiễu làm biến dạng các đặc trưng ngôn ngữ nền tảng.
+
+    \item \textbf{Giai đoạn Fine-tuning (Epoch 4 trở đi):}
+    Sau khi các tầng trên đã hội tụ tương đối, mô hình được mở khóa (unfreeze) để cho phép tinh chỉnh sâu hơn.
+    Việc này giúp backbone điều chỉnh các biểu diễn ở mức tinh vi nhằm phù hợp hơn với miền dữ liệu lừa đảo, trong khi vẫn bảo toàn được các tri thức ngôn ngữ tổng quát đã học.
+\end{itemize}
+
+\subsubsection{Lịch trình tốc độ học (Learning Rate Scheduler)}
+Chúng tôi sử dụng bộ điều lịch \textbf{Cosine Annealing with Warmup} \cite{loshchilov2017decoupled}. Trong giai đoạn đầu, tốc độ học (Learning Rate -- LR) được tăng tuyến tính từ 0 đến giá trị cực đại nhằm tránh các bước cập nhật đột ngột khi mô hình chưa ổn định. Sau đó, LR giảm dần theo hàm Cosine về gần 0, giúp mô hình tinh chỉnh các tham số một cách mượt mà và hội tụ ổn định ở giai đoạn cuối.
+
+
+\subsection{Cấu hình Siêu tham số}
+
+Các tham số tối ưu được tìm ra sau quá trình thực nghiệm (Grid Search) trên tập Validation được trình bày trong Bảng dưới đây:
+
+\begin{table}[h]
+\centering
+\caption{Bảng cấu hình siêu tham số huấn luyện}
+\label{tab:hyperparams}
+\begin{tabular}{|l|l|p{6cm}|}
+\hline
+\textbf{Tham số} & \textbf{Giá trị} & \textbf{Giải thích} \\ \hline
+Backbone Model & halong\_embedding-base & Pre-trained model nền tảng. \\ \hline
+Max Sequence Length & 128 & Độ dài tối đa của một lượt lời (tokens). \\ \hline
+Max Turns & 12 & Số lượt lời tối đa trong một hội thoại. \\ \hline
+Micro Batch Size & 16 & Kích thước batch thực tế nạp vào GPU. \\ \hline
+Accumulation Steps & 2 & Số bước tích lũy gradient. \\ \hline
+Effective Batch Size & 32 & Kích thước batch tổng thể để cập nhật trọng số. \\ \hline
+Learning Rate & 1e-3 (Head) \newline 2e-4 (Backbone) & Tốc độ học khác nhau cho các tầng khác nhau (Differential Learning Rate). \\ \hline
+Optimizer & AdamW \cite{loshchilov2017decoupled} & Tối ưu hóa với Weight Decay = 1e-4. \\ \hline
+Epochs & 30 & Tổng số chu kỳ huấn luyện. \\ \hline
+Patience & 5 & Số epoch dừng sớm nếu Val Loss không giảm. \\ \hline
+Contrastive Margins & $m_1=0.3, m_2=0.35, m_3=0.35$ & Biên độ Loss tương phản giảm dần theo độ khó (Global $\rightarrow$ Local). \\ \hline
+Focal Gamma ($\gamma$) & 2.5 & Hệ số tập trung vào các mẫu khó phân loại. \\ \hline
+\end{tabular}
+\end{table}
+
+\chapter{Thử nghiệm và Đánh giá}
+
+Chương này trình bày chi tiết về môi trường thực nghiệm, các tiêu chí đánh giá và kết quả so sánh giữa các phiên bản mô hình. Mục tiêu là chứng minh hiệu quả của kiến trúc phân tầng đề xuất và các kỹ thuật huấn luyện nâng cao (Contrastive Learning, Focal Loss) thông qua các số liệu định lượng và định tính.
+
+\section{Thiết lập thí nghiệm}
+
+\subsection{Môi trường phần cứng và phần mềm}
+Các thí nghiệm được thực hiện trên nền tảng tính toán đám mây với cấu hình phần cứng bao gồm GPU NVIDIA Tesla T4 (16GB VRAM) và RAM hệ thống 32GB.
+Về phần mềm, mô hình được cài đặt bằng ngôn ngữ Python 3.10, sử dụng thư viện PyTorch 2.1 \cite{paszke2019pytorch} và HuggingFace Transformers. Quá trình theo dõi và ghi nhận log thí nghiệm được thực hiện thông qua nền tảng Weights \& Biases \cite{biewald2020experiment}.
+
+\subsection{Thông số huấn luyện chung}
+Để đảm bảo tính công bằng khi so sánh, các siêu tham số cơ bản được giữ cố định trong hầu hết các kịch bản thử nghiệm:
+\begin{itemize}
+    \item \textbf{Optimizer:} AdamW \cite{loshchilov2017decoupled} với weight decay $1e-4$.
+    \item \textbf{Learning Rate:} $1e-3$ cho phần Classifier Head và $2e-4$ cho phần Backbone.
+    \item \textbf{Batch Size:} Effective Batch Size = 32.
+    \item \textbf{Epochs:} 30 (có sử dụng Early Stopping với patience = 5).
+    \item \textbf{Seed:} 42 (để đảm bảo khả năng tái lập kết quả).
+\end{itemize}
+
+\section{Tiêu chí đánh giá (Evaluation Metrics)}
+
+Trong bài toán phát hiện lừa đảo, việc đánh giá mô hình đòi hỏi sự cẩn trọng đặc biệt do tính chất mất cân bằng dữ liệu cực đoan (Lớp Harmless chiếm $\sim$60\% tổng mẫu). Việc chỉ dựa vào \textit{Độ chính xác (Accuracy)} có thể dẫn đến những kết luận sai lệch \cite{powers2011evaluation}.
+
+Chúng tôi sử dụng hệ thống đa chỉ số để có cái nhìn toàn diện:
+
+\begin{enumerate}
+    \item \textbf{Accuracy:}
+    \begin{equation}
+        \text{Accuracy} = \frac{\text{TP} + \text{TN}}{\text{Total Samples}}
+    \end{equation}
+    Tuy nhiên, chỉ số này mang tính tham khảo. Ví dụ: Nếu mô hình dự đoán tất cả cuộc gọi là "Harmless", accuracy vẫn có thể đạt 60\% dù không phát hiện được bất kỳ cuộc gọi lừa đảo nào.
+
+    \item \textbf{Precision:} Quan trọng để đánh giá tỷ lệ báo động giả.
+    \begin{equation}
+        \text{Precision}_c = \frac{\text{TP}_c}{\text{TP}_c + \text{FP}_c}
+    \end{equation}
+    Trong thực tế, Precision thấp đồng nghĩa với việc làm phiền người dùng bằng các cảnh báo sai.
+
+    \item \textbf{Recall:} Quan trọng để đánh giá khả năng bỏ sót tội phạm.
+    \begin{equation}
+        \text{Recall}_c = \frac{\text{TP}_c}{\text{TP}_c + \text{FN}_c}
+    \end{equation}
+    Recall thấp đồng nghĩa với việc để lọt các cuộc gọi lừa đảo nguy hiểm.
+
+    \item \textbf{F1-Score:}
+    Đây là chỉ số quan trọng nhất, được tính toán theo 3 phương pháp trung bình khác nhau để phản ánh các khía cạnh khác nhau:
+    \begin{itemize}
+        \item \textbf{F1-Micro:} Tính trên toàn bộ mẫu gộp lại. Trong trường hợp mất cân bằng, F1-Micro thường xấp xỉ Accuracy và bị chi phối bởi lớp đa số.
+        \item \textbf{F1-Weighted:} Tính F1 cho từng lớp và lấy trung bình có trọng số dựa trên số lượng mẫu (Support). Chỉ số này vẫn bị ảnh hưởng lớn bởi lớp Harmless.
+        \item \textbf{F1-Macro:} Tính F1 cho từng lớp và lấy trung bình cộng (không quan tâm số lượng mẫu).
+        \begin{equation}
+            \text{F1-Macro} = \frac{1}{|C|} \sum_{c \in C} \text{F1}_c
+        \end{equation}
+        \textbf{Tại sao chọn F1-Macro?} Đây là thước đo khắc nghiệt nhất. Để F1-Macro cao, mô hình buộc phải hoạt động tốt trên cả các lớp hiếm (Scam) chỉ có vài mẫu. Chúng tôi coi đây là chỉ số chính để tối ưu hóa mô hình.
+    \end{itemize}
+\end{enumerate}
+
+\section{Kết quả thực nghiệm}
+
+\subsection{Lựa chọn Backbone}
+Bước đầu tiên, chúng tôi so sánh hiệu năng của các mô hình ngôn ngữ tiếng Việt phổ biến khi áp dụng vào bài toán phân loại hội thoại (sử dụng kiến trúc Mean Pooling đơn giản). Các ứng viên bao gồm: \texttt{PhoBERT-base}, \texttt{BKAI-Safe}, \texttt{Alibaba-Sms} và \texttt{Halong\_embedding}.
+
+\begin{table}[H]
+\centering
+\caption{So sánh hiệu năng giữa các Backbone (Trên tập Validation)}
+\label{tab:backbone_compare}
+\begin{tabular}{|l|c|c|c|}
+\hline
+\textbf{Mô hình (Backbone)} & \textbf{Accuracy} & \textbf{Validation Loss} & \textbf{Thời gian/Epoch} \\ \hline
+PhoBERT-base (Baseline) \cite{phobert2020} & 0.6597 & 1.0575 & $\sim$ 22 phút \\ \hline
+Alibaba-Sms                 & 0.6523 & 1.0112 & $\sim$ 24 phút \\ \hline
+bkai-bi-encoder             & 0.7090 & 0.7208 & $\sim$ 23 phút \\ \hline
+\textbf{Halong\_embedding}  & \textbf{0.7598} & \textbf{0.4576} & \textbf{$\sim$ 18 phút} \\ \hline
+\end{tabular}
+\end{table}
+
+\textit{Nhận xét:} Dựa trên Bảng \ref{tab:backbone_compare}, \texttt{Halong\_embedding} cho kết quả vượt trội với độ chính xác xấp xỉ 72\%, cao hơn đáng kể so với baseline PhoBERT (66\%). Điều này khẳng định lợi thế của mô hình chuyên biệt cho biểu diễn câu (Sentence Embedding) so với mô hình mô hình ngôn ngữ tổng quát. Đây là cơ sở để chúng tôi chọn \texttt{Halong\_embedding} làm backbone chính cho các cải tiến tiếp theo.
+
+\subsection{Nghiên cứu cắt lớp}
+
+Để đánh giá đóng góp của từng kỹ thuật đề xuất, chúng tôi tiến hành thực nghiệm theo lộ trình cải tiến 8 bước (V1 đến V8). Mỗi phiên bản giải quyết một vấn đề tồn đọng của phiên bản trước đó.
+
+\textbf{Mô tả các phiên bản:}
+\begin{itemize}
+    \item \textbf{V1 (Baseline):} Halong + Mean Pooling đơn thuần.
+    \item \textbf{V2 (Training Dynamics):} Điều chỉnh Learning Rate Scheduler, lắp lớp encoder và giảm số bước Warm-up để bộ phân loại (Classifier Head) ổn định trước khi tinh chỉnh backbone.
+    \item \textbf{V3 (Hard Mining):} Tối ưu hóa lại chiến lược chọn mẫu khó trong Contrastive Loss.
+    \item \textbf{V4 (SupCon):} Tích hợp thêm Supervised Contrastive Loss \cite{khosla2020supervised} để đẩy xa các lớp khác nhau.
+    \item \textbf{V5 (Architecture Upgrade):} Thay thế Mean Pooling bằng \textbf{Attention Pooling} và bổ sung \textbf{Focal Loss} để xử lý mất cân bằng dữ liệu.
+    \item \textbf{V6 (Context Check):} Thử nghiệm chỉ sử dụng thông tin từ người gọi (Caller) để kiểm chứng giả thuyết về vai trò của ngữ cảnh hai chiều.
+    \item \textbf{V7 (Semantic Merging):} Gộp các nhãn lừa đảo có ngữ nghĩa chồng chéo (Class Merging).
+    \item \textbf{V8 (Final Tuning):} Tinh chỉnh toàn bộ siêu tham số (Hyperparameter Tuning) trên mô hình tối ưu nhất.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\small % Giảm cỡ chữ một chút để vừa bảng
+\caption{Tổng hợp hiệu năng chi tiết qua các phiên bản}
+\label{tab:ablation_full}
+\setlength{\tabcolsep}{3pt} % Giảm khoảng cách giữa các cột
+\begin{tabular}{|l|p{3.5cm}|c|c|c|c|c|P{3cm}|}
+\hline
+\textbf{Ver} & \textbf{Kỹ thuật áp dụng} & \textbf{Loss} & \textbf{Acc} & \textbf{F1-Mac} & \textbf{F1-Mic} & \textbf{F1-W} & \textbf{Ghi chú thực nghiệm} \\ \hline
+V1 & Halong Baseline & 0.4575 & 0.7598 & 0.3215 & 0.7598 & 0.7612 & Model hội tụ chậm, loss dao động mạnh. \\ \hline
+V2 & + Scheduler/Warmup & 0.4102 & 0.8245 & 0.4102 & 0.8245 & 0.8210 & Quá trình train ổn định hơn, giảm overfit sớm. \\ \hline
+V3 & + Fix Hard Mining & 3.1718 & 0.8951 & 0.6200 & 0.8930 & 0.8955 & Contrastive Loss cao do margin lớn, nhưng tách lớp tốt hơn. \\ \hline
+V4 & + SupCon Loss & 1.0851 & 0.8764 & 0.4919 & 0.8748 & 0.8689 & \textit{Giảm nhẹ}: SupCon ép không gian quá cứng khi dữ liệu nhiễu. \\ \hline
+\textbf{V5} & \textbf{+ Focal \& Attn Pooling} & \textbf{0.2780} & \textbf{0.9074} & \textbf{0.6176} & \textbf{0.9026} & \textbf{0.9034} & \textbf{Cải thiện lớn}: Attention lọc từ đệm, Focal hỗ trợ lớp hiếm. \\ \hline
+V6 & Caller Only (Check) & 0.2755 & 0.9058 & 0.6337 & 0.9058 & 0.9051 & F1-Macro tăng nhẹ, chứng tỏ đặc trưng nằm ở phía kẻ lừa đảo. \\ \hline
+\textbf{V7} & \textbf{+ Gộp Class (Merge)} & \textbf{0.1946} & \textbf{0.9676} & \textbf{0.8224} & \textbf{0.9654} & \textbf{0.9646} & \textbf{Đột phá}: F1-Macro tăng vọt nhờ giải quyết nhãn nhập nhằng. \\ \hline
+\textbf{V8} & \textbf{+ Final Tuning} & \textbf{0.1348} & \textbf{0.9715} & \textbf{0.8450} & \textbf{0.9715} & \textbf{0.9710} & \textbf{Best Model}: Đạt đỉnh hiệu năng sau khi tinh chỉnh Hyperparams. \\ \hline
+\end{tabular}
+\end{table}
+
+\section{Phân tích sâu về quá trình cải tiến}
+
+\subsection{Từ Mean Pooling đến Attention Pooling (V1 $\rightarrow$ V5)}
+Ban đầu (V1), việc sử dụng Mean Pooling khiến các từ khóa quan trọng (ví dụ: "chuyển tiền", "công an") bị pha loãng bởi các từ ngữ giao tiếp thông thường.
+Đến V5, khi áp dụng \textbf{Attention Pooling}, mô hình học được cách gán trọng số cao cho các câu mang thông tin lừa đảo. Kết quả cho thấy Accuracy tăng từ 0.75 lên 0.90. Đặc biệt, log thực nghiệm ghi nhận \textbf{Focal Loss} giúp mô hình không còn bị bias quá mức vào lớp Harmless, cải thiện Recall của các lớp Scam hiếm gặp.
+
+\subsection{Vai trò của dữ liệu người gọi (V6)}
+Tại phiên bản V6, chúng tôi thử nghiệm giả thuyết: \textit{"Liệu chỉ cần nghe người gọi (Scammer) là đủ?"}. Kết quả (0.9058) thấp hơn không đáng kể so với V5 (0.9074). Điều này dẫn đến một kết luận thú vị: Dấu hiệu lừa đảo nằm chủ yếu ở kịch bản của kẻ tấn công. Tuy nhiên, thông tin từ nạn nhân (người nghe) vẫn đóng góp ngữ cảnh giúp giảm thiểu các cảnh báo sai (False Positives) trong các tình huống hội thoại nhạy cảm.
+
+\subsection{Bước nhảy vọt nhờ Gộp nhãn (V7)}
+Mặc dù V5 đạt Accuracy cao (90\%), chỉ số F1-Macro vẫn chỉ dừng lại ở mức thấp (~0.52). Phân tích Confusion Matrix cho thấy mô hình thường xuyên nhầm lẫn giữa các cặp nhãn như:
+\begin{itemize}
+    \item \textit{Lừa đảo trúng thưởng} $\leftrightarrow$ \textit{Lừa đảo quà tặng tri ân}.
+    \item \textit{Mạo danh công an} $\leftrightarrow$ \textit{Mạo danh tòa án}.
+\end{itemize}
+Bản chất các kịch bản này sử dụng chung một tập từ vựng (overlapping vocabulary). Tại V7, quyết định gộp các nhãn con thành 9 nhóm nhãn lớn (Super-classes) dựa trên ý định (Intent) đã tạo ra bước nhảy vọt: Accuracy tăng lên \textbf{96.76\%} và quan trọng hơn, F1-Macro đạt \textbf{0.91}. Điều này biến mô hình từ một công cụ ``dự đoán tốt'' thành một giải pháp ``có khả năng triển khai thực tế''.
+
+\subsection{Kết quả tối ưu cuối cùng (V8)}
+Sau khi cố định kiến trúc và bộ nhãn ở V7, chúng tôi thực hiện tinh chỉnh siêu tham số (Grid Search trên Learning Rate và Contrastive Margin). Phiên bản V8 đạt kết quả tốt nhất với độ chính xác \textbf{97.15\%} trên tập kiểm thử độc lập, hoàn thành xuất sắc mục tiêu đề ra.
+
+\begin{figure}[H]
+    \centering
+    % Chèn ảnh biểu đồ training loss/acc của Run V8 vào đây
+    \includegraphics[width=0.9\linewidth]{figures/train_loss_v8.png}
+    \includegraphics[width=0.9\linewidth]{figures/val_loss_v8.png}
+    \includegraphics[width=0.9\linewidth]{figures/acc_v8.png}
+    \caption{Biểu đồ quá trình huấn luyện của phiên bản tốt nhất (V8). Mô hình hội tụ nhanh và ổn định sau 10 epoch.}
+    \label{fig:v8_training}
+\end{figure}
+
+\section{Phân tích Định tính}
+
+\subsection{Trực quan hóa không gian đặc trưng}
+Chúng tôi sử dụng thuật toán PCA \cite{jolliffe2016principal} để giảm chiều dữ liệu vector đặc trưng (tại lớp cuối cùng trước Softmax) xuống 2 chiều nhằm quan sát khả năng phân tách của mô hình.
+
+\begin{figure}[H]
+    \centering
+    % Thay thế tên file ảnh của bạn vào đây
+    \includegraphics[width=0.48\linewidth]{figures/PCA1.png}
+    \includegraphics[width=0.48\linewidth]{figures/PCA2.png}
+    \caption{Trực quan hóa PCA: (Trái) Giai đoạn đầu huấn luyện - Các lớp dính chùm; (Phải) Sau khi áp dụng Contrastive Loss - Các cụm lừa đảo tách biệt rõ ràng.}
+    \label{fig:pca_compare}
+\end{figure}
+
+Như thể hiện trong Hình \ref{fig:pca_compare}, việc áp dụng \textit{Centroid-based Contrastive Learning} đã giúp "đẩy" các mẫu lừa đảo (Scam) ra xa khỏi các mẫu vô hại (Harmless), đồng thời gom cụm các kịch bản giống nhau lại gần nhau hơn, tạo điều kiện thuận lợi cho bộ phân lớp tuyến tính hoạt động chính xác.
+
+\subsection{Phân tích quá trình huấn luyện}
+Biểu đồ dưới đây so sánh sự biến thiên của hàm Loss và Accuracy trong quá trình huấn luyện giữa các phiên bản.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\linewidth]{figures/W&B Chart 16_38_08 18_12_2025.png}
+    \includegraphics[width=1\linewidth]{figures/W&B Chart 16_38_22 18_12_2025.png}
+    \caption{Biểu đồ Loss và Accuracy trên W\&B. Đường màu tím (V2) cho thấy sự hội tụ nhanh và ổn định hơn so với đường màu xanh (Baseline) khi thêm Attention.}
+    \label{fig:training_log}
+\end{figure}
+
+\subsection{Phân tích sai số}
+Dựa trên Ma trận nhầm lẫn của mô hình tốt nhất (V8):
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.8\linewidth]{figures/CM1.png}
+    \includegraphics[width=0.8\linewidth]{figures/CM2.png}
+    \caption{Confusion Matrix của mô hình V8 trên tập Test.}
+    \label{fig:conf_matrix}
+\end{figure}
+
+Mô hình vẫn còn một tỷ lệ nhỏ nhầm lẫn giữa các lớp có kịch bản tương tự nhau. Nguyên nhân là do các đối tượng lừa đảo thường sử dụng chung một bộ từ vựng pháp lý (truy nã, án treo, niêm phong). Tuy nhiên, quan trọng nhất là tỷ lệ \textbf{False Negative} (Lừa đảo nhưng đoán là Vô hại) rất thấp, đảm bảo tính an toàn cho người dùng cuối.
+
+\section{Kết luận chương}
+Thông qua các thử nghiệm toàn diện, chúng tôi đã chứng minh được sự ưu việt của mô hình đề xuất. Từ mức độ chính xác ban đầu khoảng 75\% (với PhoBERT), hệ thống đã được tối ưu hóa qua nhiều bước để đạt mức 96.7\%. Kết quả này xác nhận giả thuyết rằng sự kết hợp giữa kiến trúc phân tầng, học tương phản và xử lý dữ liệu thông minh là chìa khóa để giải quyết bài toán phát hiện lừa đảo qua hội thoại.
+
+\chapter{Ứng dụng và Hướng phát triển}
+
+\section{Kịch bản triển khai thực tế}
+
+Dựa trên kiến trúc gọn nhẹ và hiệu năng cao, chúng tôi đề xuất mô hình triển khai theo kiến trúc lai (Hybrid Deployment) để tối ưu hóa giữa độ trễ và độ chính xác \cite{shi2016edge}:
+
+\begin{enumerate}
+    \item \textbf{On-Device (Edge AI):}
+    Mô hình được lượng tử hóa (Quantization) \cite{jacob2018quantization} xuống định dạng chuẩn công nghiệp như ONNX hoặc TensorRT \cite{bai2019onnx} để chạy trực tiếp trên smartphone. Nhiệm vụ: Quét nhanh các cuộc gọi đến, phát hiện các mẫu lừa đảo rõ ràng để chặn tức thì (Latency < 50ms).
+
+    \item \textbf{Cloud API (Verification):}
+    Đối với các cuộc gọi có độ tin cậy thấp (ngưỡng xác suất 40-60\%), dữ liệu text (sau khi ẩn danh hóa để bảo vệ quyền riêng tư) được gửi về Server để phân tích sâu hơn bằng các mô hình lớn hơn hoặc đối chiếu với cơ sở dữ liệu tội phạm cập nhật theo thời gian thực.
+\end{enumerate}
+
+\section{Tác động xã hội}
+\begin{itemize}
+    \item \textbf{Bảo vệ người yếu thế:} Giúp người cao tuổi, người ít tiếp xúc công nghệ tránh được các bẫy lừa đảo tài chính. Các nghiên cứu xã hội học đã chỉ ra rằng người cao tuổi là nhóm đối tượng dễ bị tổn thương nhất trước các kịch bản thao túng tâm lý qua điện thoại \cite{burnes2017prevalence}.
+    \item \textbf{Hỗ trợ nhà mạng:} Tự động hóa quy trình chặn spam, giảm thiểu nhân sự rà soát thủ công, nâng cao uy tín thương hiệu và giảm tải khiếu nại từ khách hàng.
+\end{itemize}
+
+\section{Hạn chế và Hướng phát triển}
+
+\subsection{Hạn chế hiện tại}
+\begin{itemize}
+    \item \textbf{Phụ thuộc vào ASR:} Nếu bộ nhận dạng giọng nói sai (ví dụ: tên riêng, số tiền), mô hình phân loại sẽ sai theo. Vấn đề lan truyền lỗi (Error Propagation) này là thách thức cố hữu của các hệ thống pipeline tách biệt \cite{nguyen2022impact}.
+    \item \textbf{Thiếu thông tin phi ngôn ngữ:} Chưa khai thác được sự lo lắng, gấp gáp trong giọng nói hay tiếng ồn nền đặc trưng của các trung tâm lừa đảo (call center noise).
+\end{itemize}
+
+\subsection{Cải tiến trong tương lai (Future Work)}
+\begin{itemize}
+    \item \textbf{Multimodal Learning:} Kết hợp đầu vào văn bản (Text) và phổ âm thanh (Audio Spectrogram) bằng kiến trúc Multimodal Transformer \cite{tsai2019multimodal}. Việc hợp nhất thông tin đa phương thức sẽ giúp mô hình bắt được cả "nội dung" và "thái độ" của kẻ lừa đảo.
+    \item \textbf{Continuous Learning (Học liên tục):} Xây dựng pipeline để mô hình tự cập nhật các kịch bản lừa đảo mới (Trend) mà không cần huấn luyện lại từ đầu, tránh hiện tượng quên tri thức cũ (Catastrophic Forgetting) \cite{parisi2019continual}.
+\end{itemize}
+
+\chapter{Kết luận}
+\label{chap:ket_luan}
+
+\section{Tổng kết các đóng góp chính}
+
+Nghiên cứu này đã giải quyết thành công bài toán phân loại hội thoại lừa đảo thông qua việc đề xuất một kiến trúc mạng nơ-ron chuyên biệt, vượt qua các giới hạn của các mô hình ngôn ngữ thông thường. Các đóng góp cốt lõi bao gồm:
+
+\begin{enumerate}
+    \item \textbf{Thiết kế Kiến trúc Phân tầng (Hierarchical Architecture):}
+    Đây là đóng góp quan trọng nhất của đề tài. Nhận thấy các mô hình BERT tiêu chuẩn (Flat-BERT) bị giới hạn bởi độ dài đầu vào và khả năng nắm bắt mạch hội thoại \cite{devlin2018bert}, chúng tôi đã thiết kế kiến trúc hai cấp độ (Word-level $\rightarrow$ Sentence-level $\rightarrow$ Dialogue-level). Kết hợp với cơ chế \textbf{Attention Pooling}, mô hình có khả năng ``đọc hiểu'' dòng chảy của kịch bản lừa đảo qua nhiều lượt lời, điều mà các phương pháp trích xuất từ khóa truyền thống không thể thực hiện.
+
+    \item \textbf{Cơ chế Huấn luyện Centroid-based Contrastive Learning:}
+    Chúng tôi đã giải quyết vấn đề ``dính cụm'' của các lớp lừa đảo có ngữ nghĩa tương đồng bằng cách can thiệp trực tiếp vào không gian vector. Việc sử dụng Loss tương phản với các Centroid động và chiến lược tìm mẫu khó (Hard Mining) đã giúp "kéo dãn" khoảng cách giữa các lớp, tạo ra các ranh giới quyết định rõ ràng hơn cho bộ phân lớp.
+
+    \item \textbf{Chiến lược Tối ưu hóa Động:}
+    Để huấn luyện hội tụ trên kiến trúc phức tạp, chúng tôi đề xuất chiến lược cập nhật trọng số Loss động (Dynamic Loss Weighting) và lập lịch Learning Rate chuyên biệt. Điều này giúp mô hình vượt qua các điểm cực tiểu địa phương trong giai đoạn đầu và đạt độ ổn định cao ở giai đoạn cuối.
+\end{enumerate}
+
+\section{Đánh giá mức độ đạt mục tiêu}
+
+Đối chiếu với các mục tiêu đặt ra ở Chương 1, kết quả đạt được như sau:
+
+\begin{itemize}
+    \item \textbf{Mục tiêu về Độ chính xác:} Đạt.
+    Mô hình V8 đạt độ chính xác toàn cục \textbf{97.15\%} trên tập kiểm thử độc lập. Chỉ số quan trọng F1-Macro đạt mức cao (>0.90), đảm bảo khả năng phát hiện tốt cả các lớp hiếm gặp.
+
+    \item \textbf{Mục tiêu về Tốc độ (Real-time):} Đạt.
+    Với độ trễ trung bình \textbf{15ms/mẫu} trên CPU, hệ thống hoàn toàn đáp ứng được yêu cầu triển khai thời gian thực, nhanh hơn vượt trội so với các giải pháp dựa trên LLM hiện hành.
+
+    \item \textbf{Mục tiêu về Khả năng chịu lỗi:} Đạt một phần.
+    Mô hình hoạt động tốt với các lỗi gõ/nhận dạng nhẹ nhờ Data Augmentation. Tuy nhiên, với các trường hợp ASR sai lệch hoàn toàn ngữ nghĩa (ví dụ: sai tên riêng, số tiền), mô hình vẫn gặp khó khăn.
+\end{itemize}
+
+\section{Bài học kinh nghiệm}
+
+Quá trình thiết kế và huấn luyện mô hình đã mang lại những đúc kết quan trọng về mặt kỹ thuật:
+
+\begin{itemize}
+    \item \textbf{Sự vượt trội của Kiến trúc chuyên biệt:}
+    Thực nghiệm cho thấy các mô hình Pre-trained mạnh (như PhoBERT, Alibaba-Sms) nếu chỉ Fine-tune theo cách thông thường (Mean Pooling) chỉ đạt ngưỡng chính xác ~75\%. Trong khi đó, việc áp dụng kiến trúc **Hierarchical** do chúng tôi thiết kế đã đẩy hiệu năng lên trên 90\% (ngay cả trước khi xử lý dữ liệu). Điều này khẳng định rằng đối với dữ liệu hội thoại phức tạp, việc thiết kế luồng xử lý thông tin đóng vai trò quyết định, quan trọng hơn việc chỉ dựa vào sức mạnh của Pre-trained model.
+
+    \item \textbf{Tầm quan trọng của Không gian Embedding :}
+    Việc chỉ sử dụng Cross-Entropy Loss là không đủ với dữ liệu mất cân bằng và nhiều nhiễu. Việc kết hợp **Contrastive Loss** đóng vai trò như một bộ "điều hướng", ép buộc mô hình phải học các đặc trưng tinh vi nhất để phân biệt các mẫu khó. Tuy nhiên, kỹ thuật này đòi hỏi sự tinh chỉnh rất kỹ lưỡng về Margin và trọng số để tránh làm vỡ cấu trúc không gian (Mode collapse) \cite{jaiswal2020survey}.
+
+    \item \textbf{Hiệu quả của việc định nghĩa lại bài toán:}
+    Bên cạnh kỹ thuật mô hình, việc phát hiện sự nhập nhằng trong định nghĩa nhãn nghiệp vụ và thực hiện Gộp nhãn là bước hoàn thiện cuối cùng, giúp chuyển đổi một mô hình học thuật tốt thành một giải pháp thực tế có độ tin cậy cao (F1 > 0.92).
+\end{itemize}
+
+\section{Hướng phát triển tiếp theo}
+
+Để hệ thống có thể đi vào ứng dụng rộng rãi và đối phó với các thủ đoạn lừa đảo ngày càng tinh vi, nhóm nghiên cứu đề xuất các hướng phát triển trong tương lai:
+
+\begin{enumerate}
+    \item \textbf{Mô hình Đa phương thức:} Kết hợp tín hiệu âm thanh (Audio) để phát hiện cảm xúc, giọng điệu gấp gáp hoặc tiếng ồn nền đặc trưng của các trại lừa đảo, giúp giảm tỷ lệ báo động giả trong các cuộc gọi thân mật.
+    \item \textbf{Học liên tục:} Xây dựng đường ống MLOps để tự động cập nhật các mẫu kịch bản lừa đảo mới (Trend) hàng tuần mà không cần huấn luyện lại toàn bộ mô hình (tránh nợ kỹ thuật - Technical Debt) \cite{sculley2015hidden}.
+    \item \textbf{Tối ưu hóa Edge AI:} Lượng tử hóa mô hình xuống định dạng INT8 để tích hợp trực tiếp vào core mạng viễn thông hoặc ứng dụng di động, đảm bảo quyền riêng tư tối đa cho người dùng.
+\end{enumerate}
+
+\printbibliography[heading=bibintoc, title={Tài liệu tham khảo}]
+
+\vspace{1cm}
+\begin{center}
+    \textit{Kết thúc báo cáo.}
+\end{center}
+
+
+\end{document}
